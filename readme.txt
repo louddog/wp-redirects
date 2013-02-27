@@ -3,8 +3,8 @@ Contributors: mattdeclaire
 Donate link: http://www.louddog.com
 Tags: 301 redirects, redirection
 Requires at least: 3.3.1
-Tested up to: 3.3.1
-Stable tag: 1_0_0
+Tested up to: 3.5.1
+Stable tag: 1_1_0
 
 Create 301 redirects from one place to another.
 
@@ -29,10 +29,17 @@ We've not had any questions frequently asked.
 
 == Changelog ==
 
+= 1.1 =
+* Cleaned up interface
+* [Bug fix](http://wordpress.org/support/topic/you-do-not-have-sufficient-permissions-to-access-this-page-142): Removed use of short tags
+
 = 1.0 =
 * Hello world.
 
 == Upgrade Notice ==
+
+= 1.1 =
+Upgrade if you were having errors.  Otherwise, this is a cosmetic upgrade.
 
 = 1.0 =
 Well.  I don't see how you can be upgrading at this point.
