@@ -62,32 +62,31 @@ class LoudDog_Redirects {
 					</tr>
 				</table>
 
+				<p>Or upload a .csv file full of 'em: <input type="file" name="<?php echo $this->slug ?>_csv" /></p>
+
 				<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save') ?>" /></p>
 			</form>
 
-			<h3>Existing</h3>
-			<form method="post" action="options-general.php?page=<?php echo $this->slug ?>" enctype="multipart/form-data">
-				<table>
-					<tr>
-						<th>From</th>
-						<th>To</th>
-					</tr>
-
-					<?php if (!empty($redirects)) foreach ($redirects as $from => $to) { ?>
-
+			<?php if (!empty($redirects)) { ?>
+				<h3>Existing</h3>
+				<form method="post" action="options-general.php?page=<?php echo $this->slug ?>" enctype="multipart/form-data">
+					<table>
 						<tr>
-							<td><input type="text" name="<?php echo $this->slug ?>[from][]" value="<?php echo $from ?>" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
-							<td><input type="text" name="<?php echo $this->slug ?>[to][]" value="<?php echo $to ?>" style="width:30em;" /></td>
-							<td><a href="options-general.php?page=<?php echo $this->slug ?>&<?php echo $this->slug ?>[delete]=<?php echo urlencode($from) ?>">delete</a></td>
+							<th>From</th>
+							<th>To</th>
 						</tr>
+						<?php foreach ($redirects as $from => $to) { ?>
+							<tr>
+								<td><input type="text" name="<?php echo $this->slug ?>[from][]" value="<?php echo $from ?>" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
+								<td><input type="text" name="<?php echo $this->slug ?>[to][]" value="<?php echo $to ?>" style="width:30em;" /></td>
+								<td><a href="options-general.php?page=<?php echo $this->slug ?>&<?php echo $this->slug ?>[delete]=<?php echo urlencode($from) ?>">delete</a></td>
+							</tr>
+						<?php } ?>
+					</table>
 
-					<?php } ?>
-				</table>
-				
-				<p>Or upload a .csv file full of 'em: <input type="file" name="<?php echo $this->slug ?>_csv" /></p>
-
-				<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
-			</form>
+					<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
+				</form>
+			<?php } ?>
 		</div>
 
 		<?php
