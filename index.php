@@ -16,10 +16,7 @@ class LoudDog_Redirects {
 	function __construct() {
 		add_action('init', array($this,'redirect'), 1);
 		add_action('admin_menu', array($this,'admin_menu'));
-		
-		if (isset($_POST[$this->slug.'_submit'])) {
-			$this->save($_POST[$this->slug]);
-		}
+		add_action('admin_init', array($this,'save'));
 	}
 
 	function admin_menu() {
@@ -44,106 +41,122 @@ class LoudDog_Redirects {
 			
 			<p>
 				Looks like you've got
-				<strong><?php echo count($redirects); ?></strong>
-				<?php echo count($redirects) == 1 ? "redirect" : "redirects"; ?>.
+				<strong><?php echo count($redirects) ?></strong>
+				<?php echo count($redirects) == 1 ? "redirect" : "redirects" ?>.
 			</p>
 			
-			<form method="post" action="options-general.php?page=<?=$this->slug?>" enctype="multipart/form-data">
+			<h3>New</h3>
+			<form method="post" action="options-general.php?page=<?php echo $this->slug ?>" enctype="multipart/form-data">
 				<table>
 					<tr>
 						<th>From</th>
 						<th>To</th>
-						<th>Delete</th>
+					</tr>
+					<tr>
+						<td><input type="text" name="<?php echo $this->slug ?>[from][new]" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
+						<td><input type="text" name="<?php echo $this->slug ?>[to][new]" style="width:30em;" /></td>
 					</tr>
 					<tr>
 						<td><small>example: /about.htm</small></td>
 						<td><small>example: <?php echo get_option('home'); ?>/about/</small></td>
-						<td><input type="checkbox" class="selectAll" /></td>
 					</tr>
+				</table>
 
+				<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save') ?>" /></p>
+			</form>
+
+			<h3>Existing</h3>
+			<form method="post" action="options-general.php?page=<?php echo $this->slug ?>" enctype="multipart/form-data">
+				<table>
 					<tr>
-						<td><input type="text" name="<?=$this->slug?>[from][]" value="" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
-						<td><input type="text" name="<?=$this->slug?>[to][]" value="" style="width:30em;" /></td>
-						<td><input type="hidden" name="<?=$this->slug?>[delete][]" value="" /></td>
-					</tr>
-					
-					<tr>
-						<td colspan="2"><hr /></td>
+						<th>From</th>
+						<th>To</th>
 					</tr>
 
 					<?php if (!empty($redirects)) foreach ($redirects as $from => $to) { ?>
 
 						<tr>
-							<td><input type="text" name="<?=$this->slug?>[from][]" value="<?=$from?>" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
-							<td><input type="text" name="<?=$this->slug?>[to][]" value="<?=$to?>" style="width:30em;" /></td>
-							<td><input type="checkbox" name="<?=$this->slug?>[delete][]" /></td>
+							<td><input type="text" name="<?php echo $this->slug ?>[from][]" value="<?php echo $from ?>" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
+							<td><input type="text" name="<?php echo $this->slug ?>[to][]" value="<?php echo $to ?>" style="width:30em;" /></td>
+							<td><a href="options-general.php?page=<?php echo $this->slug ?>&<?php echo $this->slug ?>[delete]=<?php echo urlencode($from) ?>">delete</a></td>
 						</tr>
 
 					<?php } ?>
-					
 				</table>
 				
-				<p>Or upload a .csv file full of 'em: <input type="file" name="<?=$this->slug?>_csv" /></p>
+				<p>Or upload a .csv file full of 'em: <input type="file" name="<?php echo $this->slug ?>_csv" /></p>
 
-				<p class="submit"><input type="submit" name="<?=$this->slug?>_submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
+				<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
 			</form>
 		</div>
-		
-		<script>
-			jQuery(function() {
-				var $ = jQuery;
-				
-				$('input.selectAll').change(function() {
-					$(this).parents('form').find('input:checkbox:not(.selectAll)').attr('checked', $(this).attr('checked'));
-				});
-			});
-		</script>
 
 		<?php
 	}
 
-	function save($data) {
-		$redirects = array();
+	function save() {
+		if (!isset($_REQUEST[$this->slug]) && empty($_FILES[$this->slug.'_csv'])) return;
 
-		foreach ($data['from'] as $i => $from) {
-			if ($data['delete'][$i]) continue;
-			
-			$from = trim($from);
-			$to = trim($data['to'][$i]);
-			if (empty($from) || empty($to)) continue;
-			$redirects[$from] = $to;
-		}
-		
+		$data = $_REQUEST[$this->slug];
+		$redirects = get_option($this->slug);
+
 		if (!empty($_FILES[$this->slug.'_csv']['tmp_name'])) {
 			$csv = explode("\n", file_get_contents($_FILES[$this->slug.'_csv']['tmp_name']));
 			foreach ($csv as $redirect) {
 				list($from, $to) = explode(',', $redirect);
 				if (empty($from) || empty($to)) continue;
+				$from = trim($from);
+				$to = trim($to);
+				$redirects[$from] = $to;
+			}
+		} else if (isset($data['delete'])) {
+			unset($redirects[$data['delete']]);
+		} else if (isset($data['from']['new'])) {
+			$from = trim($data['from']['new']);
+			$to = trim($data['to']['new']);
+			$redirects[$from] = $to;
+		} else {
+			$redirects = array();
+			$changes = array_combine($data['from'], $data['to']);
+			foreach ($changes as $from => $to) {
+				$from = trim($from);
+				$to = trim($to);
 				$redirects[$from] = $to;
 			}
 		}
-		
-		/*
-		echo "<pre>";
-		print_r($_POST);
-		print_r($redirects);
-		die;
-		*/
-		
+
+		$processed = array();
+		foreach ($redirects as $from => $to) {
+			if (!preg_match("/^\//", $from)) {
+				$from = "/$from";
+			}
+
+			if (!preg_match("/^https?:\/\/|\//", $to)) {
+				$to = preg_match("/\.(com|net|org)/", $to)
+					? "http://$to"
+					: "/$to";
+			}
+
+			$processed[$from] = $to;
+		}
+		$redirects = $processed;
+
 		update_option($this->slug, $redirects);
+
+		wp_redirect("options-general.php?page=$this->slug");
+		exit;
 	}
 
 	function redirect() {
 		$redirects = get_option($this->slug);
-		extract(parse_url($_SERVER['REQUEST_URI']));
+		if (is_array($redirects)) {
+			extract(parse_url($_SERVER['REQUEST_URI']));
 
-		if (is_array($redirects) && array_key_exists($path, $redirects)) {
-			$to = $redirects[$path];
-			if (!empty($query)) $to .= "?$query";
-
-			header ('HTTP/1.1 301 Moved Permanently');
-			header ('Location: '.$to);
-			exit();
+			if (isset($redirects[$path])) {
+				$to = $redirects[$path];
+				if (!empty($query)) $to .= "?$query";
+				wp_redirect($to, 301);
+				exit;
+			}
 		}
 	}
 }
