@@ -99,12 +99,11 @@ class LoudDog_Redirects {
 		$redirects = get_option($this->slug);
 
 		if (!empty($_FILES[$this->slug.'_csv']['tmp_name'])) {
-			$csv = explode("\n", file_get_contents($_FILES[$this->slug.'_csv']['tmp_name']));
-			foreach ($csv as $redirect) {
-				list($from, $to) = explode(',', $redirect);
+			$csv = fopen($_FILES[$this->slug.'_csv']['tmp_name'], 'r');
+			while ($redirect = fgetcsv($csv)) {
+				array_walk($redirect, 'trim');
+				list($from, $to) = $redirect;
 				if (empty($from) || empty($to)) continue;
-				$from = trim($from);
-				$to = trim($to);
 				$redirects[$from] = $to;
 			}
 		} else if (isset($data['delete'])) {
