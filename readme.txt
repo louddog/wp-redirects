@@ -4,7 +4,6 @@ Donate link: http://www.louddog.com
 Tags: 301 redirects, redirection
 Requires at least: 3.3.1
 Tested up to: 3.5.1
-Stable tag: 1_1_0
 
 Create 301 redirects from one place to another.
 
@@ -28,6 +27,9 @@ We've not had any questions frequently asked.
 1. Redirects interface
 
 == Changelog ==
+
+= 1.2 =
+* Use PHP to parse CSV files.
 
 = 1.1 =
 * Cleaned up interface

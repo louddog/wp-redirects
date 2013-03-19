@@ -2,12 +2,10 @@
 /*
 Plugin Name: Redirects
 Description: Create redirects from old urls to the new.
-Version: 1.1
+Version: 1.2
 Author: Loud Dog
 Author URI: http://www.louddog.com
 */
-
-// TODO: Delete options on deactivation
 
 new LoudDog_Redirects;
 class LoudDog_Redirects {
