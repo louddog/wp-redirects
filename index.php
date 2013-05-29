@@ -21,7 +21,7 @@ class LoudDog_Redirects {
 		add_options_page(
 			'Redirects',
 			'Redirects',
-			10,
+			'administrator',
 			$this->slug,
 			array($this, 'options')
 		);
