@@ -51,8 +51,8 @@ class LoudDog_Redirects {
 						<th>To</th>
 					</tr>
 					<tr>
-						<td><input type="text" name="<?php echo $this->slug ?>[from][new]" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
-						<td><input type="text" name="<?php echo $this->slug ?>[to][new]" style="width:30em;" /></td>
+						<td><input type="text" name="<?php echo $this->slug ?>[from][new]" style="width:30em" id="redir_from_input" />&nbsp;&raquo;&nbsp;</td>
+						<td><input type="text" name="<?php echo $this->slug ?>[to][new]" style="width:30em;" id="redir_to_input" /></td>
 					</tr>
 					<tr>
 						<td><small>example: /about.htm</small></td>
@@ -62,7 +62,32 @@ class LoudDog_Redirects {
 
 				<p>Or upload a .csv file full of 'em: <input type="file" name="<?php echo $this->slug ?>_csv" /></p>
 
-				<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save') ?>" /></p>
+				<p class="submit"><input type="submit" name="<?php echo $this->slug ?>_submit" class="button-primary" value="<?php _e('Save') ?>" id="redir_save_btn" /></p>
+				
+				<script>
+					var saveBtn = document.getElementById('redir_save_btn');
+					saveBtn.disabled = true;
+					
+					var fromInput = document.getElementById('redir_from_input');
+					var toInput = document.getElementById('redir_to_input');
+					
+					function enableBtn(){
+						//Only enable the save button if the inputs have a different value.
+						saveBtn.disabled = fromInput.value === toInput.value;
+					}
+					
+					//Respond to input change events
+					if(fromInput.addEventListener) {
+						fromInput.addEventListener('keyup', enableBtn);
+						toInput.addEventListener('keyup', enableBtn);
+					} else if(fromInput.attachEvent) {
+						fromInput.attachEvent('onkeyup', enableBtn);
+						toInput.attachEvent('onkeyup', enableBtn);
+					} else {
+						//Can't respond to input events so just enable the button all the time.
+						saveBtn.disabled = false;
+					}
+				</script>
 			</form>
 
 			<?php if (!empty($redirects)) { ?>
