@@ -168,14 +168,14 @@ class LoudDog_Redirects {
 	}
 
 	function redirect() {
-		$redirects = get_option($this->slug);
-		if (is_array($redirects)) {
-			extract(parse_url($_SERVER['REQUEST_URI']));
+		$redirects = get_option( $this->slug );
+		if ( is_array( $redirects ) ) {
+			$url = parse_url( $_SERVER['REQUEST_URI'] );
 
-			if (isset($redirects[$path])) {
-				$to = $redirects[$path];
-				if (!empty($query)) $to .= "?$query";
-				wp_redirect($to, 301);
+			if ( isset( $redirects[$url['path']] ) ) {
+				$to = $redirects[$url['path']];
+				if ( !empty( $query) ) $to .= "?$query";
+				wp_redirect( $to, 301 );
 				exit;
 			}
 		}
