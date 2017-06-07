@@ -174,7 +174,8 @@ class LoudDog_Redirects {
 
 			if ( isset( $redirects[$url['path']] ) ) {
 				$to = $redirects[$url['path']];
-				if ( !empty( $query) ) $to .= "?$query";
+				$query = $url['query'];
+				if ( !empty( $query ) ) $to .= "?$query";
 				wp_redirect( $to, 301 );
 				exit;
 			}
