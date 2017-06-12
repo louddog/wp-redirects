@@ -36,7 +36,7 @@ class LoudDog_Redirects {
 	
 		<div class="wrap">
 			<h2>Redirects</h2>
-			
+
 			<p>
 				Looks like you've got
 				<strong><?php echo count($redirects) ?></strong>
@@ -102,7 +102,7 @@ class LoudDog_Redirects {
 							<tr>
 								<td><input type="text" name="<?php echo $this->slug ?>[from][]" value="<?php echo $from ?>" style="width:30em" />&nbsp;&raquo;&nbsp;</td>
 								<td><input type="text" name="<?php echo $this->slug ?>[to][]" value="<?php echo $to ?>" style="width:30em;" /></td>
-								<td><a href="options-general.php?page=<?php echo $this->slug ?>&<?php echo $this->slug ?>[delete]=<?php echo urlencode($from) ?>">delete</a></td>
+								<td><a href="<?php echo add_query_arg( array( 'delete' => urlencode( $from ), $this->slug => true ) ); ?>">delete</a></td>
 							</tr>
 						<?php } ?>
 					</table>
@@ -129,8 +129,9 @@ class LoudDog_Redirects {
 				if (empty($from) || empty($to)) continue;
 				$redirects[$from] = $to;
 			}
-		} else if (isset($data['delete'])) {
-			unset($redirects[$data['delete']]);
+		} else if (isset($_GET['delete'])) {
+			$delete = $_GET['delete'];
+			unset($redirects[$delete]);
 		} else if (isset($data['from']['new'])) {
 			$from = trim($data['from']['new']);
 			$to = trim($data['to']['new']);
@@ -161,10 +162,38 @@ class LoudDog_Redirects {
 		}
 		$redirects = $processed;
 
-		update_option($this->slug, $redirects);
+		// Loop through each redirect and make sure the from value is acceptable
+		foreach ( $redirects as $from => $to ) {
+			if ( ! $this->is_valid( $from ) ) {
+				unset( $redirects[$from] );
+				add_settings_error(
+					'redirects',
+					esc_attr( 'settings_updated' ),
+					'Invalid value. Please correct and try again.',
+					'error'
+				);
+			}
+		}
+		update_option( $this->slug, $redirects );
+	}
 
-		wp_redirect("options-general.php?page=$this->slug");
-		exit;
+	/**
+	 * Checks to make sure the redirect from value isn't problematic
+	 *
+	 * @since 1.2.1
+	 * @param $from
+	 * @return bool
+	 */
+	function is_valid( $from ) {
+		$bad = array(
+			'/',
+			'/options-general.php',
+		);
+		$return = true;
+		if ( in_array( $from, $bad, true ) ) {
+			$return = false;
+		}
+		return $return;
 	}
 
 	function redirect() {
