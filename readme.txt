@@ -28,6 +28,9 @@ We've not had any questions frequently asked.
 
 == Changelog ==
 
+= 1.2.1 =
+* fixed: #4, #15. Thanks, @brashrebel.
+
 = 1.2 =
 * Use PHP to parse CSV files.
 

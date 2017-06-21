@@ -2,7 +2,7 @@
 /*
 Plugin Name: Redirects
 Description: Create redirects from old urls to the new.
-Version: 1.2
+Version: 1.2.1
 Author: Loud Dog
 Author URI: http://www.louddog.com
 */
